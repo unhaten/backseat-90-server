@@ -1,7 +1,8 @@
-import { Body, Controller, Post } from '@nestjs/common'
+import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common'
 import { AuthService } from './auth.service'
 import { CreateUserDto } from 'src/users/dto/create-user.dto'
 import { LoginUserDto } from 'src/users/dto/login-user-dto'
+import { JwtAuthGuard } from 'src/guards/jwt-auth.guard'
 @Controller('auth')
 export class AuthController {
 	constructor(private readonly authService: AuthService) {}
@@ -19,4 +20,10 @@ export class AuthController {
 			createUserDto.confirmPassword
 		)
 	}
+
+	// @UseGuards(JwtAuthGuard)
+	// @Get('profile')
+	// getProfile(@Request() req) {
+	// 	return req.user
+	// }
 }
