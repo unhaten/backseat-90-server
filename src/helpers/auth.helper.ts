@@ -1,5 +1,8 @@
 import { HttpException, HttpStatus } from '@nestjs/common'
 
-export function throwHttpException(message: string, status: HttpStatus) {
+export const throwHttpException = (
+	message: string,
+	status: HttpStatus
+): void => {
 	throw new HttpException(message, status)
 }

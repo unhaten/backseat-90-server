@@ -1,14 +1,18 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
+import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common'
 import { JwtService } from '@nestjs/jwt'
 import { PrismaService } from 'src/prisma/prisma.service'
 import * as bcrypt from 'bcrypt'
 import { throwHttpException } from 'src/helpers/auth.helper'
+import refreshJwtConfig from 'src/config/refresh-jwt.config'
+import { ConfigType } from '@nestjs/config'
 
 @Injectable()
 export class AuthService {
 	constructor(
 		private readonly jwtService: JwtService,
-		private readonly prisma: PrismaService
+		private readonly prisma: PrismaService,
+		@Inject(refreshJwtConfig.KEY)
+		private readonly refreshTokenConfig: ConfigType<typeof refreshJwtConfig>
 	) {}
 
 	async validate(email: string, pwd: string): Promise<any> {
@@ -39,10 +43,21 @@ export class AuthService {
 				HttpStatus.UNAUTHORIZED
 			)
 
-		const payload = { email: user.email, sub: user.id, name: user.name }
+		const payload = { sub: user.id }
+
+		const token = await this.jwtService.sign(payload)
+		const refreshToken = this.jwtService.sign(
+			payload,
+			this.refreshTokenConfig
+		)
 		return {
-			access_token: await this.jwtService.signAsync(payload)
+			payload,
+			token,
+			refreshToken
 		}
+		// return {
+		// 	access_token: await this.jwtService.signAsync(payload)
+		// }
 	}
 
 	async register(email: string, pwd: string, confirmPwd: string) {
@@ -71,6 +86,16 @@ export class AuthService {
 
 		const { password, ...result } = user
 		return result
+	}
+
+	async refreshToken(userId: string) {
+		const payload = { sub: userId }
+		const token = this.jwtService.sign(payload)
+
+		return {
+			id: userId,
+			token
+		}
 	}
 
 	// async getProfile() {

@@ -1,21 +1,22 @@
-import { Controller, Get } from '@nestjs/common'
+import { Controller, Get, Request, UseGuards } from '@nestjs/common'
 import { UsersService } from './users.service'
-import { PrismaService } from 'src/prisma/prisma.service'
+import { JwtAuthGuard } from 'src/guards/jwt-auth.guard'
 
 @Controller('users')
 export class UsersController {
 	constructor(
 		// private readonly usersService: UsersService,
-		private readonly prismaService: PrismaService
+		private readonly usersService: UsersService
 	) {}
 
 	@Get()
 	async findAll() {
-		return await this.prismaService.user.findMany()
+		return await this.usersService.findAll()
 	}
 
-	// @Get()
-	// findOne() {
-	// 	return 'finds specific user'
-	// }
+	@UseGuards(JwtAuthGuard)
+	@Get('profile')
+	async getProfile(@Request() req) {
+		return await this.usersService.getUserProfile(req.user)
+	}
 }
