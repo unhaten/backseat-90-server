@@ -1,8 +1,6 @@
 import {
 	BadRequestException,
 	ConflictException,
-	HttpException,
-	HttpStatus,
 	Inject,
 	Injectable,
 	UnauthorizedException
@@ -10,9 +8,8 @@ import {
 import { JwtService } from '@nestjs/jwt'
 import { PrismaService } from 'src/prisma/prisma.service'
 import * as bcrypt from 'bcrypt'
-import { throwHttpException } from 'src/helpers/auth.helper'
-import refreshJwtConfig from 'src/config/refresh-jwt.config'
 import { ConfigType } from '@nestjs/config'
+import refreshJwtConfig from './config/refresh-jwt.config'
 
 @Injectable()
 export class AuthService {
@@ -60,7 +57,8 @@ export class AuthService {
 		// 		HttpStatus.UNAUTHORIZED
 		// 	)
 
-		const payload = { sub: user.id, email: user.email, name: user.name }
+		//! GOTO users.service for explanation
+		const payload = { sub: user.id }
 
 		const token = await this.jwtService.signAsync(payload)
 		const refreshToken = await this.jwtService.signAsync(
@@ -68,13 +66,10 @@ export class AuthService {
 			this.refreshTokenConfig
 		)
 		return {
-			payload,
+			// payload,
 			token,
 			refreshToken
 		}
-		// return {
-		// 	access_token: await this.jwtService.signAsync(payload)
-		// }
 	}
 
 	async register(email: string, pwd: string, confirmPwd: string) {
@@ -104,10 +99,10 @@ export class AuthService {
 
 	async refreshToken(userId: string) {
 		const payload = { sub: userId }
-		const token = this.jwtService.sign(payload)
+		const token = await this.jwtService.signAsync(payload)
 
 		return {
-			id: userId,
+			// id: userId,
 			token
 		}
 	}

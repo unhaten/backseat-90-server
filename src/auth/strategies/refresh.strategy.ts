@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@nestjs/common'
 import { ConfigType } from '@nestjs/config'
 import { PassportStrategy } from '@nestjs/passport'
 import { ExtractJwt, Strategy } from 'passport-jwt'
-import jwtConfig from 'src/config/jwt.config'
+import refreshJwtConfig from '../config/refresh-jwt.config'
 
 type JwtPayload = {
 	sub: string
@@ -10,22 +10,24 @@ type JwtPayload = {
 	name: string
 }
 @Injectable()
-export class JwtStrategy extends PassportStrategy(Strategy) {
+export class RefreshJwtStrategy extends PassportStrategy(
+	Strategy,
+	'refresh-jwt'
+) {
 	constructor(
-		@Inject(jwtConfig.KEY)
-		private readonly jwtConfiguration: ConfigType<typeof jwtConfig>
+		@Inject(refreshJwtConfig.KEY)
+		private readonly refreshJwtConfiguration: ConfigType<
+			typeof refreshJwtConfig
+		>
 	) {
 		super({
 			jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-			secretOrKey: jwtConfiguration.secret,
+			secretOrKey: refreshJwtConfiguration.secret,
 			ignoreExpiration: false
 		})
 	}
 
 	async validate(payload: JwtPayload) {
-		// console.log(
-		// 	'validate from strategy calls when we want to get data with access-token'
-		// )
-		return payload
+		return { sub: payload.sub }
 	}
 }

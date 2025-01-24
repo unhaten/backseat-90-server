@@ -4,12 +4,12 @@ import { AuthController } from './auth.controller'
 import { PrismaService } from 'src/prisma/prisma.service'
 import { PassportModule } from '@nestjs/passport'
 import { JwtModule } from '@nestjs/jwt'
-import { JwtStrategy } from 'src/strategies/jwt.strategy'
-import jwtConfig from 'src/config/jwt.config'
+import { JwtStrategy } from 'src/auth/strategies/jwt.strategy'
 import { ConfigModule } from '@nestjs/config'
-import refreshJwtConfig from 'src/config/refresh-jwt.config'
-import { RefreshJwtStrategy } from 'src/strategies/refresh.strategy'
-import { LocalStrategy } from 'src/strategies/local.strategy'
+import { RefreshJwtStrategy } from 'src/auth/strategies/refresh.strategy'
+import { LocalStrategy } from 'src/auth/strategies/local.strategy'
+import jwtConfig from './config/jwt.config'
+import refreshJwtConfig from './config/refresh-jwt.config'
 
 @Module({
 	controllers: [AuthController],
