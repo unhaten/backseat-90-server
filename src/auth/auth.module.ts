@@ -9,10 +9,17 @@ import jwtConfig from 'src/config/jwt.config'
 import { ConfigModule } from '@nestjs/config'
 import refreshJwtConfig from 'src/config/refresh-jwt.config'
 import { RefreshJwtStrategy } from 'src/strategies/refresh.strategy'
+import { LocalStrategy } from 'src/strategies/local.strategy'
 
 @Module({
 	controllers: [AuthController],
-	providers: [AuthService, PrismaService, JwtStrategy, RefreshJwtStrategy],
+	providers: [
+		AuthService,
+		PrismaService,
+		JwtStrategy,
+		RefreshJwtStrategy,
+		LocalStrategy
+	],
 	imports: [
 		PassportModule,
 		JwtModule.registerAsync(jwtConfig.asProvider()),

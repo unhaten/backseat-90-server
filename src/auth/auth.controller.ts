@@ -11,17 +11,15 @@ import {
 import { AuthService } from './auth.service'
 import { CreateUserDto } from 'src/users/dto/create-user.dto'
 import { LoginUserDto } from 'src/users/dto/login-user-dto'
-import { JwtAuthGuard } from 'src/guards/jwt-auth.guard'
 import { JwtService } from '@nestjs/jwt'
 import { RefreshJwtAuthGuard } from 'src/guards/refresh-auth.guard'
+import { LocalAuthGuard } from 'src/guards/local-auth.guard'
 @Controller('auth')
 export class AuthController {
-	constructor(
-		private readonly authService: AuthService,
-		private readonly jwtService: JwtService
-	) {}
+	constructor(private readonly authService: AuthService) {}
 
 	@HttpCode(HttpStatus.OK)
+	@UseGuards(LocalAuthGuard)
 	@Post('login')
 	async login(@Body() dto: LoginUserDto) {
 		return this.authService.login(dto.email, dto.password)

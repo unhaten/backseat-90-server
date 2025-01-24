@@ -26,6 +26,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 		// console.log(
 		// 	'validate from strategy calls when we want to get data with access-token'
 		// )
-		return { sub: payload.sub }
+		return payload
 	}
 }
