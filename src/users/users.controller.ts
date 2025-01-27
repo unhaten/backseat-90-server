@@ -16,4 +16,9 @@ export class UsersController {
 	async getProfile(@Request() req) {
 		return await this.usersService.getUserProfile(req.user)
 	}
+
+	@Get('background')
+	async getBackground() {
+		return await this.usersService.getBackground()
+	}
 }

@@ -9,4 +9,9 @@ export class SongsController {
 	async getSongs() {
 		return this.songsService.getSongs()
 	}
+
+	@Get('connect')
+	async connect() {
+		return this.songsService.connect()
+	}
 }

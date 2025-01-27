@@ -74,7 +74,7 @@ export class AuthService {
 
 	async register(email: string, pwd: string, confirmPwd: string) {
 		if (pwd !== confirmPwd)
-			throw new BadRequestException('Passwords doe not match')
+			throw new BadRequestException('Passwords do not match')
 
 		const isExists = await this.prisma.user.findUnique({
 			where: { email }
@@ -94,6 +94,8 @@ export class AuthService {
 		})
 
 		const { password, ...result } = user
+		console.log('new user has been registered =>', user.email)
+		// FIXME: give a token
 		return result
 	}
 

@@ -20,4 +20,11 @@ export class UsersService {
 
 		return user
 	}
+
+	async getBackground() {
+		// TODO: make a throttle!
+		const randomGif = Math.floor(Math.random() * 7) + 1;
+		const background = `backgrounds/gif-${randomGif}.webp`
+		return background
+	}
 }
