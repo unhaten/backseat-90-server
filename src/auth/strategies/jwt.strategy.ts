@@ -1,14 +1,13 @@
-import { Inject, Injectable } from '@nestjs/common'
+import { Inject, Injectable, Request } from '@nestjs/common'
 import { ConfigType } from '@nestjs/config'
 import { PassportStrategy } from '@nestjs/passport'
 import { ExtractJwt, Strategy } from 'passport-jwt'
+import { Request as RequestType } from 'express'
 import jwtConfig from '../config/jwt.config'
 
-type JwtPayload = {
-	sub: string
-	email: string
-	name: string
-}
+// type JwtPayload = {
+// 	sub: string
+// }
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
 	constructor(
@@ -16,16 +15,29 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 		private readonly jwtConfiguration: ConfigType<typeof jwtConfig>
 	) {
 		super({
-			jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+			jwtFromRequest: ExtractJwt.fromExtractors([
+				JwtStrategy.extractJwt,
+				ExtractJwt.fromAuthHeaderAsBearerToken()
+			]),
 			secretOrKey: jwtConfiguration.secret,
 			ignoreExpiration: false
 		})
 	}
 
-	async validate(payload: JwtPayload) {
-		// console.log(
-		// 	'validate from strategy calls when we want to get data with access-token'
-		// )
+	async validate(payload) {
+		// validate from strategy calls when we want to get data with access-token and returns payload (id only)
 		return payload
+	}
+
+	private static extractJwt(req: RequestType): string | null {
+		if (
+			req.cookies &&
+			'access_token' in req.cookies &&
+			req.cookies.access_token.length > 0
+		) {
+			return req.cookies.access_token
+		}
+		// console.log('no cookies')
+		return null
 	}
 }

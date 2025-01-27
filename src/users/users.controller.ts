@@ -21,4 +21,10 @@ export class UsersController {
 	async getBackground() {
 		return await this.usersService.getBackground()
 	}
+
+	@UseGuards(JwtAuthGuard)
+	@Get('check')
+	async checkUser() {
+		return { message: 'User is logged in' }
+	}
 }
