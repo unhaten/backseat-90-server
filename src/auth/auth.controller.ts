@@ -6,6 +6,7 @@ import {
 	HttpStatus,
 	Post,
 	Request,
+	Res,
 	UseGuards
 } from '@nestjs/common'
 import { AuthService } from './auth.service'
@@ -21,8 +22,11 @@ export class AuthController {
 	@HttpCode(HttpStatus.OK)
 	@UseGuards(LocalAuthGuard)
 	@Post('login')
-	async login(@Body() dto: LoginUserDto) {
-		return this.authService.login(dto.email, dto.password)
+	async login(
+		@Body() dto: LoginUserDto,
+		@Res({ passthrough: true }) response
+	) {
+		return this.authService.login(dto.email, response)
 	}
 
 	@Post('register')
@@ -38,5 +42,10 @@ export class AuthController {
 	@Post('refresh')
 	async refreshToken(@Request() req) {
 		return this.authService.refreshToken(req.user.sub)
+	}
+
+	@Get('logout')
+	async logout(@Res({ passthrough: true }) response) {
+		return this.authService.logout(response)
 	}
 }

@@ -2,8 +2,7 @@ import {
 	BadRequestException,
 	ConflictException,
 	Inject,
-	Injectable,
-	UnauthorizedException
+	Injectable
 } from '@nestjs/common'
 import { JwtService } from '@nestjs/jwt'
 import { PrismaService } from 'src/prisma/prisma.service'
@@ -20,42 +19,11 @@ export class AuthService {
 		private readonly refreshTokenConfig: ConfigType<typeof refreshJwtConfig>
 	) {}
 
-	async validate(email: string, pwd: string): Promise<any> {
-		// this function is called in local.strategy.ts
-		try {
-			const user = await this.prisma.user.findUnique({
-				where: { email }
-			})
-			const isCorrectPassword = await bcrypt.compare(pwd, user.password)
-			if (!isCorrectPassword) throw new UnauthorizedException()
-			// if (user && (await bcrypt.compare(pwd, user.password))) {
-			// 	const { password, ...result } = user
-			// 	return result
-			// }
-			return user
-		} catch (e) {
-			throw new UnauthorizedException('Email or password is incorrect')
-		}
-	}
-
-	async login(email: string, password: string) {
+	async login(email: string, response) {
 		const user = await this.prisma.user.findUnique({
 			where: { email },
 			select: { id: true, email: true, name: true }
 		})
-		// if (!user)
-		// 	throwHttpException(
-		// 		'Email or password is incorrect',
-		// 		HttpStatus.UNAUTHORIZED
-		// 	)
-
-		// const isValidPassword = await bcrypt.compare(password, user.password)
-
-		// if (!isValidPassword)
-		// 	throwHttpException(
-		// 		'Email or password is incorrect',
-		// 		HttpStatus.UNAUTHORIZED
-		// 	)
 
 		//! GOTO users.service for explanation
 		const payload = { sub: user.id }
@@ -65,11 +33,18 @@ export class AuthService {
 			payload,
 			this.refreshTokenConfig
 		)
-		return {
-			// payload,
-			token,
-			refreshToken
-		}
+		response.cookie('access_token', token, {
+			// set to 30 minutes
+			expires: new Date(Date.now() + 30 * 60 * 1000),
+			httpOnly: true,
+			secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
+			sameSite: 'strict'
+		})
+		return {}
+		// return {
+		// 	token,
+		// 	refreshToken
+		// }
 	}
 
 	async register(email: string, pwd: string, confirmPwd: string) {
@@ -96,7 +71,7 @@ export class AuthService {
 		const { password, ...result } = user
 		console.log('new user has been registered =>', user.email)
 		// FIXME: give a token
-		return result
+		return {}
 	}
 
 	async refreshToken(userId: string) {
@@ -107,5 +82,10 @@ export class AuthService {
 			// id: userId,
 			token
 		}
+	}
+
+	async logout(response) {
+		response.cookie('access_token', '', { expires: new Date(Date.now()) })
+		return {}
 	}
 }

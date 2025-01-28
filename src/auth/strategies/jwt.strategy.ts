@@ -5,9 +5,9 @@ import { ExtractJwt, Strategy } from 'passport-jwt'
 import { Request as RequestType } from 'express'
 import jwtConfig from '../config/jwt.config'
 
-// type JwtPayload = {
-// 	sub: string
-// }
+type JwtPayload = {
+	sub: string
+}
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
 	constructor(
@@ -24,11 +24,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 		})
 	}
 
-	async validate(payload) {
-		// validate from strategy calls when we want to get data with access-token and returns payload (id only)
-		return payload
-	}
-
 	private static extractJwt(req: RequestType): string | null {
 		if (
 			req.cookies &&
@@ -37,7 +32,11 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 		) {
 			return req.cookies.access_token
 		}
-		// console.log('no cookies')
 		return null
+	}
+
+	async validate(payload: JwtPayload) {
+		// validate from strategy calls when we want to get data with access-token and returns payload (id only)
+		return payload
 	}
 }
