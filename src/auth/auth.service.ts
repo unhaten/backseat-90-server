@@ -36,11 +36,13 @@ export class AuthService {
 		response.cookie('access_token', token, {
 			// set to 30 minutes
 			expires: new Date(Date.now() + 30 * 60 * 1000),
-			httpOnly: true,
-			secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
-			sameSite: 'strict'
+			httpOnly: true
+			// secure: process.env.NODE_ENV === 'production' ? true : false,
+			// sameSite: process.env.NODE_ENV === 'production' ? 'lax' : 'none',
+			// domain: '.app.localhost',
+			// path: '/'
 		})
-		return {}
+		return { name: user.name }
 		// return {
 		// 	token,
 		// 	refreshToken
