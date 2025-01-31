@@ -15,16 +15,6 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
 	}
 
 	async validate(email: string, pwd: string): Promise<any> {
-		// const user = await this.authService.validate(email, password)
-		// if (!user)
-		// 	throwHttpException(
-		// 		'Email or password is incorrect',
-		// 		HttpStatus.UNAUTHORIZED
-		// 	)
-		// return user
-
-		// return this.authService.validate(email, password)
-
 		try {
 			const user = await this.prisma.user.findUnique({
 				where: { email }

@@ -8,6 +8,7 @@ import { AuthModule } from './auth/auth.module'
 import { SongsModule } from './songs/songs.module'
 import { ServeStaticModule } from '@nestjs/serve-static'
 import { join } from 'path'
+import { ThrottlerModule } from '@nestjs/throttler'
 
 @Module({
 	imports: [
@@ -18,6 +19,12 @@ import { join } from 'path'
 			rootPath: join(__dirname, '..', 'public'),
 			serveRoot: '/public/'
 		}),
+		ThrottlerModule.forRoot([
+			{
+				ttl: 60000,
+				limit: 10
+			}
+		]),
 		UsersModule,
 		PrismaModule,
 		AuthModule,
