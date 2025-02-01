@@ -1,4 +1,11 @@
-import { Controller, Get, Request, UseGuards } from '@nestjs/common'
+import {
+	Controller,
+	Get,
+	Param,
+	Query,
+	Request,
+	UseGuards
+} from '@nestjs/common'
 import { UsersService } from './users.service'
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard'
 
@@ -18,8 +25,8 @@ export class UsersController {
 	}
 
 	@Get('background')
-	async getBackground() {
-		return await this.usersService.getBackground()
+	async getBackground(@Query('image-id') imageId: number) {
+		return await this.usersService.getBackground(imageId)
 	}
 
 	@UseGuards(JwtAuthGuard)

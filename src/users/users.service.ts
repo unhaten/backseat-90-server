@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, Param } from '@nestjs/common'
+import { BadRequestException, Injectable } from '@nestjs/common'
 import { PrismaService } from 'src/prisma/prisma.service'
 
 @Injectable()
@@ -21,9 +21,10 @@ export class UsersService {
 		return user
 	}
 
-	async getBackground(@Param('image-id') imageId: string) {
+	async getBackground(imageId: number) {
 		// TODO: make a throttle!
 		let randomGif = Math.floor(Math.random() * 7) + 1
+		console.log(imageId)
 		while (randomGif === +imageId) {
 			randomGif = Math.floor(Math.random() * 7) + 1
 		}
