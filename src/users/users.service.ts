@@ -24,11 +24,10 @@ export class UsersService {
 	async getBackground(imageId: number) {
 		// TODO: make a throttle!
 		let randomGif = Math.floor(Math.random() * 7) + 1
-		console.log(imageId)
 		while (randomGif === +imageId) {
 			randomGif = Math.floor(Math.random() * 7) + 1
 		}
 		const background = `backgrounds/gif-${randomGif}.webp`
-		return background
+		return { background: background, imageId: randomGif }
 	}
 }

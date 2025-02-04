@@ -42,6 +42,10 @@ export class AuthService {
 			// domain: '.app.localhost',
 			// path: '/'
 		})
+		response.cookie('refresh_token', refreshToken, {
+			expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
+			httpOnly: true
+		})
 		return { name: user.name }
 		// return {
 		// 	token,
@@ -76,18 +80,26 @@ export class AuthService {
 		return {}
 	}
 
-	async refreshToken(userId: string) {
+	async refreshToken(userId: string, response) {
 		const payload = { sub: userId }
-		const token = await this.jwtService.signAsync(payload)
+		const newToken = await this.jwtService.signAsync(payload)
 
-		return {
-			// id: userId,
-			token
-		}
+		response.cookie('access_token', newToken, {
+			expires: new Date(Date.now() + 30 * 60 * 1000),
+			httpOnly: true
+		})
+
+		return {}
+
+		// return {
+		// 	// id: userId,
+		// 	newToken
+		// }
 	}
 
 	async logout(response) {
 		response.cookie('access_token', '', { expires: new Date(Date.now()) })
+		response.cookie('refresh_token', '', { expires: new Date(Date.now()) })
 		return {}
 	}
 }

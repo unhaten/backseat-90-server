@@ -16,7 +16,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 	) {
 		super({
 			jwtFromRequest: ExtractJwt.fromExtractors([
-				JwtStrategy.extractJwt,
+				JwtStrategy.extractJwt
 				// ExtractJwt.fromAuthHeaderAsBearerToken()
 			]),
 			secretOrKey: jwtConfiguration.secret,
@@ -31,7 +31,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 	}
 
 	async validate(payload: JwtPayload) {
-		// validate from strategy calls when we want to get data with access-token and returns payload (id only)
+		//* validate from strategy calls when we want to get data with access-token and returns payload (id only)
 		return payload
 	}
 }

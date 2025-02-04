@@ -3,10 +3,9 @@ import { ConfigType } from '@nestjs/config'
 import { PassportStrategy } from '@nestjs/passport'
 import { ExtractJwt, Strategy } from 'passport-jwt'
 import refreshJwtConfig from '../config/refresh-jwt.config'
+import { Request } from 'express'
 
 type JwtPayload = {
-	sub: string
-	email: string
 	name: string
 }
 @Injectable()
@@ -21,13 +20,22 @@ export class RefreshJwtStrategy extends PassportStrategy(
 		>
 	) {
 		super({
-			jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+			jwtFromRequest: ExtractJwt.fromExtractors([
+				RefreshJwtStrategy.extractRefreshJwt
+				// ExtractJwt.fromAuthHeaderAsBearerToken()
+			]),
 			secretOrKey: refreshJwtConfiguration.secret,
 			ignoreExpiration: false
 		})
 	}
 
+	private static extractRefreshJwt(req: Request): string | null {
+		if (req.cookies?.refresh_token?.length) return req.cookies.refresh_token
+		return null
+	}
+
 	async validate(payload: JwtPayload) {
-		return { sub: payload.sub }
+		// validate from strategy calls when we want to get data with refresh-token and returns payload (id only)
+		return payload
 	}
 }
