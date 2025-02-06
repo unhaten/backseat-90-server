@@ -2,14 +2,13 @@ import {
 	BadRequestException,
 	ConflictException,
 	Inject,
-	Injectable,
-	UnauthorizedException
+	Injectable
 } from '@nestjs/common'
 import { JwtService } from '@nestjs/jwt'
 import { PrismaService } from 'src/prisma/prisma.service'
-import * as bcrypt from 'bcrypt'
 import { ConfigType } from '@nestjs/config'
 import refreshJwtConfig from './config/refresh-jwt.config'
+import { comparePasswords, hashPassword, validatePassword } from './auth.helper'
 
 @Injectable()
 export class AuthService {
@@ -65,8 +64,7 @@ export class AuthService {
 		if (isExists)
 			throw new ConflictException('User with this email already exists')
 
-		const salt = await bcrypt.genSalt()
-		const hashedPassword = await bcrypt.hash(pwd, salt)
+		const hashedPassword = await hashPassword(pwd)
 
 		const user = await this.prisma.user.create({
 			data: {
@@ -103,25 +101,13 @@ export class AuthService {
 			where: { id }
 		})
 
-		const isCorrectPassword = await bcrypt.compare(
-			currentPassword,
-			user.password
-		)
-		if (!isCorrectPassword)
-			throw new UnauthorizedException('Current password is incorrect')
-
-		if (currentPassword === newPassword) {
-			throw new BadRequestException(
-				'Your new password is the same as current one'
-			)
-		}
-
-		const salt = await bcrypt.genSalt()
-		const newHashedPassword = await bcrypt.hash(newPassword, salt)
+		validatePassword(currentPassword, user.password)
+		comparePasswords(currentPassword, newPassword)
+		const newHashedPassword = await hashPassword(newPassword)
 
 		await this.prisma.user.update({
 			where: { id },
-			data: { password: newHashedPassword }
+			data: { password: newHashedPassword, updatedAt: new Date() }
 		})
 
 		return { message: 'You have changed your password successfully!' }

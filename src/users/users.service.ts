@@ -1,5 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common'
 import { PrismaService } from 'src/prisma/prisma.service'
+import { compareNames } from './users.helper'
 
 @Injectable()
 export class UsersService {
@@ -29,5 +30,20 @@ export class UsersService {
 		}
 		const background = `backgrounds/gif-${randomGif}.webp`
 		return { background: background, imageId: randomGif }
+	}
+
+	async changeName(id, name) {
+		const user = await this.prisma.user.findUnique({
+			where: { id }
+		})
+
+		await compareNames(name, user.name)
+
+		await this.prisma.user.update({
+			where: { id },
+			data: { name: name, updatedAt: new Date() }
+		})
+
+		return { message: 'Username has been successfully updated!' }
 	}
 }

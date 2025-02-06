@@ -1,13 +1,15 @@
 import {
+	Body,
 	Controller,
 	Get,
-	Param,
+	Post,
 	Query,
 	Request,
 	UseGuards
 } from '@nestjs/common'
 import { UsersService } from './users.service'
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard'
+import { UpdateNameDto } from './dto/update-name-user.dto'
 
 @Controller('users')
 export class UsersController {
@@ -22,6 +24,12 @@ export class UsersController {
 	@Get('profile')
 	async getProfile(@Request() req) {
 		return await this.usersService.getUserProfile(req.user)
+	}
+
+	@UseGuards(JwtAuthGuard)
+	@Post('change-name')
+	async changeName(@Request() request, @Body() dto: UpdateNameDto) {
+		return await this.usersService.changeName(request.user.sub, dto.name)
 	}
 
 	@Get('background')
