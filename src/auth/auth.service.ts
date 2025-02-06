@@ -2,7 +2,8 @@ import {
 	BadRequestException,
 	ConflictException,
 	Inject,
-	Injectable
+	Injectable,
+	UnauthorizedException
 } from '@nestjs/common'
 import { JwtService } from '@nestjs/jwt'
 import { PrismaService } from 'src/prisma/prisma.service'
@@ -95,6 +96,35 @@ export class AuthService {
 		// 	// id: userId,
 		// 	newToken
 		// }
+	}
+
+	async changePassword(id, currentPassword, newPassword) {
+		const user = await this.prisma.user.findUnique({
+			where: { id }
+		})
+
+		const isCorrectPassword = await bcrypt.compare(
+			currentPassword,
+			user.password
+		)
+		if (!isCorrectPassword)
+			throw new UnauthorizedException('Current password is incorrect')
+
+		if (currentPassword === newPassword) {
+			throw new BadRequestException(
+				'Your new password is the same as current one'
+			)
+		}
+
+		const salt = await bcrypt.genSalt()
+		const newHashedPassword = await bcrypt.hash(newPassword, salt)
+
+		await this.prisma.user.update({
+			where: { id },
+			data: { password: newHashedPassword }
+		})
+
+		return { message: 'You have changed your password successfully!' }
 	}
 
 	async logout(response) {
