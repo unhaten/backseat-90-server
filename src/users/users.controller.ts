@@ -10,6 +10,7 @@ import {
 import { UsersService } from './users.service'
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard'
 import { UpdateNameDto } from './dto/update-name-user.dto'
+import { Throttle } from '@nestjs/throttler'
 
 @Controller('users')
 export class UsersController {
@@ -37,6 +38,7 @@ export class UsersController {
 		return await this.usersService.getBackground(imageId)
 	}
 
+	@Throttle({ default: { limit: 3, ttl: 1 * 3 * 1000 } })
 	@UseGuards(JwtAuthGuard)
 	@Get('check')
 	async checkUser() {

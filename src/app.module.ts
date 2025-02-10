@@ -8,7 +8,8 @@ import { AuthModule } from './auth/auth.module'
 import { SongsModule } from './songs/songs.module'
 import { ServeStaticModule } from '@nestjs/serve-static'
 import { join } from 'path'
-import { ThrottlerModule } from '@nestjs/throttler'
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler'
+import { APP_GUARD } from '@nestjs/core'
 
 @Module({
 	imports: [
@@ -21,8 +22,8 @@ import { ThrottlerModule } from '@nestjs/throttler'
 		}),
 		ThrottlerModule.forRoot([
 			{
-				ttl: 60000,
-				limit: 10
+				ttl: 0,
+				limit: 0
 			}
 		]),
 		UsersModule,
@@ -31,6 +32,12 @@ import { ThrottlerModule } from '@nestjs/throttler'
 		SongsModule
 	],
 	controllers: [AppController],
-	providers: [AppService]
+	providers: [
+		AppService,
+		{
+			provide: APP_GUARD,
+			useClass: ThrottlerGuard
+		}
+	]
 })
 export class AppModule {}
