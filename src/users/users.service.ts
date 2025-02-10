@@ -37,13 +37,18 @@ export class UsersService {
 			where: { id }
 		})
 
-		await compareNames(name, user.name)
+		// await compareNames(name, user.name)
+		if (name === user.name) {
+			throw new BadRequestException(
+				'Your new name is the same as current one'
+			)
+		}
 
 		await this.prisma.user.update({
 			where: { id },
 			data: { name: name, updatedAt: new Date() }
 		})
 
-		return { message: 'Username has been successfully updated!' }
+		return { message: `Username has been successfully updated!`, name: name }
 	}
 }
