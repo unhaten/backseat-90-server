@@ -16,11 +16,6 @@ import { Throttle } from '@nestjs/throttler'
 export class UsersController {
 	constructor(private readonly usersService: UsersService) {}
 
-	@Get()
-	async findAll() {
-		return await this.usersService.findAll()
-	}
-
 	@UseGuards(JwtAuthGuard)
 	@Get('profile')
 	async getProfile(@Request() req) {

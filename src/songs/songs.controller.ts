@@ -1,13 +1,18 @@
-import { Controller, Get } from '@nestjs/common'
+import { Body, Controller, Get, Post, Req, Request } from '@nestjs/common'
 import { SongsService } from './songs.service'
 
 @Controller('songs')
 export class SongsController {
 	constructor(private readonly songsService: SongsService) {}
 
-	@Get()
-	async getSongs() {
-		return this.songsService.getSongs()
+	@Post()
+	async toggleSongs(userId: string, songId: number) {
+		return this.songsService.toggleSong(userId, songId)
+	}
+
+	@Get('liked')
+	async getLikedSongs(@Request() req) {
+		return this.songsService.getLikedSongs(req.user)
 	}
 
 	@Get('connect')
