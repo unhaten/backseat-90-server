@@ -34,7 +34,7 @@ export class SongsService {
 
 	async getLikedSongs(id: string) {
 		const likedSongs = await this.prisma.user.findUnique({
-			where: { id },
+			where: { id: id },
 			include: { likedSongs: true }
 		})
 		// return this.songs
@@ -45,13 +45,7 @@ export class SongsService {
 		return this.currentTrack
 	}
 
-	async toggleSong(userId: string, songId: number) {
-		const isExists = await this.prisma.user.findUnique({
-			where: { id: userId }
-		})
-
-		if (!isExists) throw new BadRequestException('User not found')
-
+	async toggleLike(userId: string, songId: number) {
 		const isLiked = await this.prisma.likedSong.findUnique({
 			where: {
 				userId_songId: {

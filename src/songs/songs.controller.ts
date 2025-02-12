@@ -1,18 +1,29 @@
-import { Body, Controller, Get, Post, Req, Request } from '@nestjs/common'
+import {
+	Body,
+	Controller,
+	Get,
+	Post,
+	Req,
+	Request,
+	UseGuards
+} from '@nestjs/common'
 import { SongsService } from './songs.service'
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard'
 
 @Controller('songs')
 export class SongsController {
 	constructor(private readonly songsService: SongsService) {}
 
-	@Post()
-	async toggleSongs(userId: string, songId: number) {
-		return this.songsService.toggleSong(userId, songId)
+	@UseGuards(JwtAuthGuard)
+	@Post('bookmarks')
+	async toggleLike(userId: string, songId: number) {
+		return this.songsService.toggleLike(userId, songId)
 	}
 
-	@Get('liked')
+	@UseGuards(JwtAuthGuard)
+	@Get('bookmarks')
 	async getLikedSongs(@Request() req) {
-		return this.songsService.getLikedSongs(req.user)
+		return this.songsService.getLikedSongs(req.user.sub)
 	}
 
 	@Get('connect')
