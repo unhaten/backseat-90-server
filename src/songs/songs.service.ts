@@ -34,7 +34,7 @@ export class SongsService {
 
 	async getLikedSongs(id: string) {
 		const likedSongs = await this.prisma.user.findUnique({
-			where: { id: id },
+			where: { id },
 			include: { likedSongs: true }
 		})
 		// return this.songs
@@ -42,7 +42,11 @@ export class SongsService {
 	}
 
 	async connect() {
-		return this.currentTrack
+		// return this.currentTrack
+		const currentSong = await this.prisma.song.findFirst()
+		if (!currentSong) throw new BadRequestException('Something went wrong')
+
+		console.log(currentSong)
 	}
 
 	async toggleLike(userId: string, songId: number) {
