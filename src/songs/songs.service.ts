@@ -32,24 +32,63 @@ export class SongsService {
 		likes: 5
 	}
 
-	async getLikedSongs(id: string) {
-		const likedSongs = await this.prisma.user.findUnique({
-			where: { id },
-			include: { likedSongs: true }
-		})
-		// return this.songs
-		return likedSongs
-	}
-
 	async connect() {
 		// return this.currentTrack
-		const currentSong = await this.prisma.song.findFirst()
+		const currentSong = await this.prisma.song.findFirst({
+			select: {
+				author: true,
+				file: true,
+				id: true,
+				thumbnail: true,
+				title: true
+			}
+		})
 		if (!currentSong) throw new BadRequestException('Something went wrong')
 
-		console.log(currentSong)
+		return currentSong
+	}
+
+	async isSongLiked(userId: string, songId: number) {
+		const likedSong = await this.prisma.likedSong.findUnique({
+			where: {
+				userId_songId: {
+					userId: userId,
+					songId: songId
+				}
+			}
+		})
+
+		return likedSong !== null
+	}
+
+	async getLikedSongs(id: string) {
+		const user = await this.prisma.user.findUnique({
+			where: { id },
+			select: {
+				likedSongs: {
+					select: {
+						song: {
+							select: {
+								id: true,
+								title: true,
+								author: true,
+								thumbnail: true,
+								likes: true
+							}
+						}
+					}
+				}
+			}
+		})
+
+		// console.log(user)
+
+		// Extract and return the relevant details from each liked song
+		return user?.likedSongs?.map(likedSong => likedSong.song) || []
 	}
 
 	async toggleLike(userId: string, songId: number) {
+		// console.log(userId, songId)
 		const isLiked = await this.prisma.likedSong.findUnique({
 			where: {
 				userId_songId: {
@@ -72,6 +111,7 @@ export class SongsService {
 					data: { likes: { increment: 1 } }
 				})
 			])
+			// console.log('liked')
 		} else {
 			await this.prisma.$transaction([
 				this.prisma.likedSong.delete({
@@ -87,6 +127,7 @@ export class SongsService {
 					data: { likes: { decrement: 1 } }
 				})
 			])
+			// console.log('disliked')
 		}
 
 		return !isLiked

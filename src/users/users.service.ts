@@ -14,7 +14,7 @@ export class UsersService {
 		//* i decided not to transfer info about user in token and i give only id of user in order to secure user's data, by making this way i secure data (duh) and get every other info from DB. If i will have lack of request resources or i need more fast working app and there is nothing bad in giving email and other stuff in access token then i will need to transfer it into payload -> payload = { sub: user.id, email: user.email, name: user.email }
 		const user = await this.prisma.user.findUnique({
 			where: { id: req.sub },
-			select: { id: true, email: true, name: true }
+			select: { name: true }
 		})
 
 		if (!user) throw new BadRequestException('User not found')
@@ -49,6 +49,9 @@ export class UsersService {
 			data: { name: name, updatedAt: new Date() }
 		})
 
-		return { message: `Username has been successfully updated!`, name: name }
+		return {
+			message: `Username has been successfully updated!`,
+			name: name
+		}
 	}
 }
