@@ -1,6 +1,7 @@
 import {
 	Body,
 	Controller,
+	Delete,
 	Get,
 	Post,
 	Req,
@@ -15,7 +16,7 @@ import { Throttle } from '@nestjs/throttler'
 export class SongsController {
 	constructor(private readonly songsService: SongsService) {}
 
-	@Throttle({ default: { limit: 1, ttl: 1 * 1 * 500 } })
+	// @Throttle({ default: { limit: 1, ttl: 1 * 1 * 500 } })
 	@UseGuards(JwtAuthGuard)
 	@Post('bookmarks')
 	async toggleLike(@Request() req, @Body() dto) {
@@ -24,9 +25,16 @@ export class SongsController {
 	}
 
 	@UseGuards(JwtAuthGuard)
+	@Delete('bookmarks')
+	async deleteLike(@Request() req, @Body() dto) {
+		// console.log(req.user.sub, dto.id)
+		return this.songsService.deleteLike(req.user.sub, dto.id)
+	}
+
+	@UseGuards(JwtAuthGuard)
 	@Get('bookmarks')
-	async getLikedSongs(@Request() req) {
-		return this.songsService.getLikedSongs(req.user.sub)
+	async getBookmarks(@Request() req) {
+		return this.songsService.getBookmarks(req.user.sub)
 	}
 
 	@Get('connect')
