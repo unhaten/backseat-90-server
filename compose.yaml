@@ -1,0 +1,14 @@
+services:
+    server:
+        container_name: backend-development
+        image: backseat-90-backend-development
+        build:
+            context: .
+            dockerfile: Dockerfile
+        ports:
+            - '2000:2000'
+        volumes:
+            - .:/usr/src/app/backend
+            - /usr/src/app/backend/node_modules
+        env_file: .env
+        command: ['npm', 'run', 'start:dev']
