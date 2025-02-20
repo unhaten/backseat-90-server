@@ -50,7 +50,6 @@ export class UsersService {
 		})
 
 		return {
-			message: `Username has been successfully updated!`,
 			name: name
 		}
 	}

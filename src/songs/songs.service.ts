@@ -145,15 +145,21 @@ export class SongsService {
 				'This song is not liked, something went wrong'
 			)
 
-		await this.prisma.likedSong.delete({
-			where: {
-				userId_songId: {
-					userId: userId,
-					songId: songId
-				}
-			}
-		})
-
+		await this.prisma.$transaction([
+				this.prisma.likedSong.delete({
+					where: {
+						userId_songId: {
+							userId: userId,
+							songId: songId
+						}
+					}
+				}),
+				this.prisma.song.update({
+					where: { id: songId },
+					data: { likes: { decrement: 1 } }
+				})
+			])
+		
 		return {}
 	}
 }

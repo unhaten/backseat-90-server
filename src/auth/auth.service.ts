@@ -129,7 +129,8 @@ export class AuthService {
 			data: { password: newHashedPassword, updatedAt: new Date() }
 		})
 
-		return { message: 'You have changed your password successfully!' }
+		// return { message: 'You have changed your password successfully!' }
+		return { }
 	}
 
 	async logout(response) {
