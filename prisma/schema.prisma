@@ -18,7 +18,7 @@ model User {
 }
 
 model Song {
-  id        Int         @id @default(autoincrement())
+  id        String      @id @default(uuid())
   title     String      @default("untitled")
   author    String      @default("unknown")
   thumbnail String
@@ -31,7 +31,7 @@ model Song {
 
 model LikedSong {
   userId String
-  songId Int
+  songId String
   song   Song   @relation(fields: [songId], references: [id], onDelete: Cascade)
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 

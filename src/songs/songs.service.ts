@@ -67,13 +67,13 @@ export class SongsService {
 				duration: currentSong.now_playing.duration,
 				elapsed: currentSong.now_playing.elapsed,
 				thumbnail: currentSong.now_playing.song.art,
-				title: currentSong.now_playing.song.text || 'Unknown',
+				title: currentSong.now_playing.song.title || 'Unknown',
 				author: currentSong.now_playing.song.artist || 'Unknown'
 			}
 		}
 	}
 
-	async isSongLiked(userId: string, songId: number) {
+	async isSongLiked(userId: string, songId: string) {
 		const likedSong = await this.prisma.likedSong.findUnique({
 			where: {
 				userId_songId: {
@@ -110,7 +110,7 @@ export class SongsService {
 		return user?.likedSongs?.map(likedSong => likedSong.song) || []
 	}
 
-	async toggleLike(userId: string, songId: number) {
+	async toggleLike(userId: string, songId: string) {
 		const isLiked = await this.prisma.likedSong.findUnique({
 			where: {
 				userId_songId: {
@@ -155,7 +155,7 @@ export class SongsService {
 		return !isLiked
 	}
 
-	async deleteLike(userId: string, songId: number) {
+	async deleteLike(userId: string, songId: string) {
 		const isLiked = await this.prisma.likedSong.findUnique({
 			where: {
 				userId_songId: {
