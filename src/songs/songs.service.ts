@@ -1,5 +1,9 @@
 import { HttpService } from '@nestjs/axios'
-import { BadRequestException, Injectable } from '@nestjs/common'
+import {
+	BadRequestException,
+	Injectable,
+	NotFoundException
+} from '@nestjs/common'
 import { lastValueFrom } from 'rxjs'
 import { PrismaService } from 'src/prisma/prisma.service'
 
@@ -71,9 +75,9 @@ export class SongsService {
 						song: {
 							select: {
 								id: true,
-								// title: true,
-								// author: true,
-								// thumbnail: true,
+								title: true,
+								author: true,
+								thumbnail: true,
 								likes: true
 							}
 						}
@@ -82,11 +86,58 @@ export class SongsService {
 			}
 		})
 
-		//* Extract and return the relevant details from each liked song
-		return user?.likedSongs?.map(likedSong => likedSong.song) || []
+		if (!user) throw new NotFoundException('User not found')
+
+		const azuraData = await lastValueFrom(
+			this.httpService.get(process.env.STATION_URL)
+		).then(res => res.data)
+
+		const history = azuraData.song_history || []
+
+		return user.likedSongs.map(liked => {
+			let song = liked.song
+			const azuraSong = history.find(s => s.song.id === song.id)
+
+			return {
+				id: song.id,
+				likes: song.likes,
+				title: song.title || azuraSong?.song.title || 'Unknown',
+				author: song.author || azuraSong?.song.artist || 'Unknown',
+				thumbnail: song.thumbnail || azuraSong?.song.art || null
+			}
+		})
+
+		// //* Extract and return the relevant details from each liked song
+		// return user?.likedSongs?.map(likedSong => likedSong.song) || []
 	}
 
 	async toggleLike(userId: string, songId: string) {
+		let song = await this.prisma.song.findUnique({
+			where: { id: songId }
+		})
+
+		if (!song) {
+			const azuraResponse = await lastValueFrom(
+				this.httpService.get(process.env.STATION_URL)
+			)
+
+			const songMetadata = azuraResponse.data.now_playing.song
+
+			if (songMetadata.id !== songId) {
+				throw new BadRequestException('Song metadata mismatch')
+			}
+
+			song = await this.prisma.song.create({
+				data: {
+					id: songMetadata.id,
+					title: songMetadata.title || 'Unknown',
+					author: songMetadata.artist || 'Unknown',
+					thumbnail: songMetadata.art || null,
+					likes: 0
+				}
+			})
+		}
+
 		const isLiked = await this.prisma.likedSong.findUnique({
 			where: {
 				userId_songId: {
