@@ -11,24 +11,41 @@ export class SongsService {
 	) {}
 	async connect() {
 		try {
-			const currentSong = await lastValueFrom(
+			const response = await lastValueFrom(
 				this.httpService.get(process.env.STATION_URL)
-			).then(res => res.data)
+			)
+
+			const currentSong = response.data
+			if (
+				!currentSong?.station?.listen_url ||
+				!currentSong?.now_playing?.song
+			) {
+				throw new BadRequestException('Invalid station data received')
+			}
+
 			return {
 				url: currentSong.station.listen_url,
-				currentListeners: currentSong.listeners.current,
+				currentListeners: currentSong.listeners.current ?? 0,
 				song: {
-					id: currentSong.now_playing.song.id,
-					playedAt: currentSong.now_playing.played_at,
-					duration: currentSong.now_playing.duration,
-					elapsed: currentSong.now_playing.elapsed,
-					thumbnail: currentSong.now_playing.song.art,
+					id: currentSong.now_playing.song.id ?? 'unknown',
+					playedAt: currentSong.now_playing.played_at ?? 0,
+					duration: currentSong.now_playing.duration ?? 0,
+					elapsed: currentSong.now_playing.elapsed ?? 0,
+					thumbnail: currentSong.now_playing.song.art ?? '',
 					title: currentSong.now_playing.song.title || 'Unknown',
 					author: currentSong.now_playing.song.artist || 'Unknown'
 				}
 			}
 		} catch (error) {
-			// console.error(error)
+			// console.error('Error fetching station data:', error)
+
+			//* Check if the error is an Axios error (HTTP request failure)
+			if (error.response) {
+				throw new BadRequestException(
+					`Failed to connect to station: ${error.response.statusText}`
+				)
+			}
+
 			throw new BadRequestException('Failed to connect to the station')
 		}
 	}
