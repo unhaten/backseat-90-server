@@ -13,12 +13,31 @@ export class SongsService {
 		private readonly prisma: PrismaService,
 		private readonly httpService: HttpService
 	) {}
+
+	// const colors = [
+	// 	{
+	// 		mainColor: '#e7568d',
+	// 		secondaryColor: '#ea6a9b'
+	// 	},
+	// 	{
+	// 		mainColor: '#6a5de7',
+	// 		secondaryColor: '#5c18d9'
+	// 	},
+	// 	{
+	// 		mainColor: '#efcb4b',
+	// 		secondaryColor: '#fcd05d'
+	// 	},
+	// 	{
+	// 		mainColor: '#3a8d6a',
+	// 		secondaryColor: '#4d9b7b'
+	// 	}
+	// ]
+
 	async connect() {
 		try {
 			const response = await lastValueFrom(
 				this.httpService.get(process.env.STATION_URL)
 			)
-
 			const currentSong = response.data
 			if (
 				!currentSong?.station?.listen_url ||
@@ -26,24 +45,46 @@ export class SongsService {
 			) {
 				throw new BadRequestException('Invalid station data received')
 			}
+			return currentSong.station.listen_url
+		} catch (error) {
+			// console.error('Error fetching station data:', error)
+			//* Check if the error is an Axios error (HTTP request failure)
+			if (error.response) {
+				throw new BadRequestException(
+					`Failed to connect to station: ${error.response.statusText}`
+				)
+			}
+			throw new BadRequestException('Failed to connect to the station')
+		}
+	}
 
+	async getSongMetadata() {
+		try {
+			const response = await lastValueFrom(
+				this.httpService.get(process.env.STATION_URL)
+			)
+			const currentSong = response.data
+			if (
+				!currentSong?.station?.listen_url ||
+				!currentSong?.now_playing?.song
+			) {
+				throw new BadRequestException('Invalid station data received')
+			}
 			return {
-				url: currentSong.station.listen_url,
 				currentListeners: currentSong.listeners.current ?? 0,
 				song: {
 					id: currentSong.now_playing.song.id ?? 'unknown',
 					playedAt: currentSong.now_playing.played_at ?? 0,
+					nextPlayingAt: currentSong.playing_next.played_at ?? 0,
 					duration: currentSong.now_playing.duration ?? 0,
 					elapsed: currentSong.now_playing.elapsed ?? 0,
 					thumbnail: currentSong.now_playing.song.art ?? '',
 					title: currentSong.now_playing.song.title || 'Unknown',
-					author: currentSong.now_playing.song.artist || 'Unknown'
+					author: currentSong.now_playing.song.artist || 'Unknown',
+					playlist: currentSong.now_playing.song.playlist || 'default'
 				}
 			}
 		} catch (error) {
-			// console.error('Error fetching station data:', error)
-
-			//* Check if the error is an Axios error (HTTP request failure)
 			if (error.response) {
 				throw new BadRequestException(
 					`Failed to connect to station: ${error.response.statusText}`
@@ -87,6 +128,8 @@ export class SongsService {
 		})
 
 		if (!user) throw new NotFoundException('User not found')
+
+		//? This way, even if AzuraCast removes old songs from history, you still have access to their metadata from your database
 
 		const azuraData = await lastValueFrom(
 			this.httpService.get(process.env.STATION_URL)

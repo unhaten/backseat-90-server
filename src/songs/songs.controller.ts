@@ -4,7 +4,6 @@ import {
 	Delete,
 	Get,
 	Post,
-	Req,
 	Request,
 	UseGuards
 } from '@nestjs/common'
@@ -40,6 +39,11 @@ export class SongsController {
 	@Get('connect')
 	async connect() {
 		return this.songsService.connect()
+	}
+
+	@Get('get-metadata')
+	async getSongMetadata() {
+		return this.songsService.getSongMetadata()
 	}
 
 	@UseGuards(JwtAuthGuard)
