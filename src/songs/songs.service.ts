@@ -45,7 +45,7 @@ export class SongsService {
 			) {
 				throw new BadRequestException('Invalid station data received')
 			}
-			return currentSong.station.listen_url
+			return { url: currentSong.station.listen_url }
 		} catch (error) {
 			// console.error('Error fetching station data:', error)
 			//* Check if the error is an Axios error (HTTP request failure)
