@@ -75,13 +75,13 @@ export class SongsService {
 				song: {
 					id: currentSong.now_playing.song.id ?? 'unknown',
 					playedAt: currentSong.now_playing.played_at ?? 0,
-					nextPlayingAt: currentSong.playing_next.played_at ?? 0,
+					// nextPlayingAt: currentSong.playing_next.played_at ?? 0,
 					duration: currentSong.now_playing.duration ?? 0,
-					elapsed: currentSong.now_playing.elapsed ?? 0,
+					// elapsed: currentSong.now_playing.elapsed ?? 0,
 					thumbnail: currentSong.now_playing.song.art ?? '',
 					title: currentSong.now_playing.song.title || 'Unknown',
-					author: currentSong.now_playing.song.artist || 'Unknown',
-					playlist: currentSong.now_playing.song.playlist || 'default'
+					author: currentSong.now_playing.song.artist || 'Unknown'
+					// playlist: currentSong.now_playing.song.playlist || 'default'
 				}
 			}
 		} catch (error) {

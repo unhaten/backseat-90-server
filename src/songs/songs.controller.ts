@@ -41,7 +41,7 @@ export class SongsController {
 		return this.songsService.connect()
 	}
 
-	@Get('get-metadata')
+	@Get('now-playing')
 	async getSongMetadata() {
 		return this.songsService.getSongMetadata()
 	}
