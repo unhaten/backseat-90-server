@@ -28,6 +28,11 @@ export class UsersController {
 		return await this.usersService.changeName(request.user.sub, dto.name)
 	}
 
+	@Post('report-a-bug')
+	async reportBug(@Body() message: string) {
+		return await this.usersService.reportBug(message)
+	}
+
 	@Get('background')
 	async getBackground(@Query('image-id') imageId: number) {
 		return await this.usersService.getBackground(imageId)

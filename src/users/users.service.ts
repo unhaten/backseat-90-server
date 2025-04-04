@@ -53,4 +53,8 @@ export class UsersService {
 			name: name
 		}
 	}
+
+	async reportBug(message: string) {
+		console.log(message)
+	}
 }
