@@ -28,9 +28,9 @@ export class UsersController {
 		return await this.usersService.changeName(request.user.sub, dto.name)
 	}
 
-	@Post('report-a-bug')
-	async reportBug(@Body() message: string) {
-		return await this.usersService.reportBug(message)
+	@Post('send-bug-report')
+	async sendBugReport(@Body() message: string) {
+		return await this.usersService.sendBugReport(message)
 	}
 
 	@Get('background')
