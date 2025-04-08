@@ -10,6 +10,7 @@ import { ServeStaticModule } from '@nestjs/serve-static'
 import { join } from 'path'
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler'
 import { APP_GUARD } from '@nestjs/core'
+import { BugReportsModule } from './bug-reports/bug-reports.module';
 
 @Module({
 	imports: [
@@ -29,7 +30,8 @@ import { APP_GUARD } from '@nestjs/core'
 		UsersModule,
 		PrismaModule,
 		AuthModule,
-		SongsModule
+		SongsModule,
+		BugReportsModule
 	],
 	controllers: [AppController],
 	providers: [

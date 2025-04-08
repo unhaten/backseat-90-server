@@ -15,6 +15,7 @@ model User {
   password   String
   updatedAt  DateTime    @updatedAt
   likedSongs LikedSong[]
+  BugReport  BugReport[]
 }
 
 model Song {
@@ -36,4 +37,13 @@ model LikedSong {
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@id([userId, songId])
+}
+
+model BugReport {
+  id        String   @id @default(uuid())
+  message   String
+  createdAt DateTime @default(now())
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
 }
