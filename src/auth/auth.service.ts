@@ -63,8 +63,7 @@ export class AuthService {
 			where: { email }
 		})
 
-		if (isExists)
-			throw new ConflictException('User with this email already exists')
+		if (isExists) throw new ConflictException('email-exists')
 
 		// const hashedPassword = await hashPassword(pwd)
 		const salt = await bcrypt.genSalt()
@@ -130,7 +129,7 @@ export class AuthService {
 		})
 
 		// return { message: 'You have changed your password successfully!' }
-		return { }
+		return {}
 	}
 
 	async logout(response) {

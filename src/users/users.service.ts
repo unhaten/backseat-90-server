@@ -39,9 +39,7 @@ export class UsersService {
 
 		// await compareNames(name, user.name)
 		if (name === user.name) {
-			throw new BadRequestException(
-				'Your new name is the same as current one'
-			)
+			throw new BadRequestException('same-name')
 		}
 
 		await this.prisma.user.update({
