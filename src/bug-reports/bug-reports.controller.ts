@@ -12,4 +12,6 @@ export class BugReportsController {
 	async create(@Request() req, @Body() dto: CreateBugReportDto) {
 		return await this.bugReportsService.create(dto.message, req.user.sub)
 	}
+
+	// TODO: make feature for knowing how many bug reports left for the user
 }

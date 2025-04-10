@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'
+import { BadRequestException, Injectable } from '@nestjs/common'
 import { PrismaService } from 'src/prisma/prisma.service'
 
 @Injectable()
@@ -10,9 +10,10 @@ export class BugReportsService {
 			where: { userId }
 		})
 
-		if (bugReportAmount >= 5) throw new Error('bug-report-limit-reached')
+		if (bugReportAmount >= 5)
+			throw new BadRequestException('bug-report-limit-reached')
 
-		return this.prisma.bugReport.create({
+		return await this.prisma.bugReport.create({
 			data: {
 				message,
 				userId
