@@ -43,18 +43,18 @@ export class SongsService {
 				!currentSong?.station?.listen_url ||
 				!currentSong?.now_playing?.song
 			) {
-				throw new BadRequestException('Invalid station data received')
+				throw new BadRequestException('invalid-station-data')
 			}
 			return { url: currentSong.station.listen_url }
 		} catch (error) {
 			// console.error('Error fetching station data:', error)
 			//* Check if the error is an Axios error (HTTP request failure)
-			if (error.response) {
-				throw new BadRequestException(
-					`Failed to connect to station: ${error.response.statusText}`
-				)
-			}
-			throw new BadRequestException('Failed to connect to the station')
+			// if (error.response) {
+			// 	throw new BadRequestException(
+			// 		`Failed to connect to station: ${error.response.statusText}`
+			// 	)
+			// }
+			throw new BadRequestException('failed-station-connection')
 		}
 	}
 
@@ -68,7 +68,7 @@ export class SongsService {
 				!currentSong?.station?.listen_url ||
 				!currentSong?.now_playing?.song
 			) {
-				throw new BadRequestException('Invalid station data received')
+				throw new BadRequestException('invalid-station-data')
 			}
 			return {
 				currentListeners: currentSong.listeners.current ?? 0,
@@ -85,13 +85,13 @@ export class SongsService {
 				}
 			}
 		} catch (error) {
-			if (error.response) {
-				throw new BadRequestException(
-					`Failed to connect to station: ${error.response.statusText}`
-				)
-			}
+			// if (error.response) {
+			// 	throw new BadRequestException(
+			// 		`Failed to connect to station: ${error.response.statusText}`
+			// 	)
+			// }
 
-			throw new BadRequestException('Failed to connect to the station')
+			throw new BadRequestException('failed-station-connection')
 		}
 	}
 
@@ -167,7 +167,7 @@ export class SongsService {
 			const songMetadata = azuraResponse.data.now_playing.song
 
 			if (songMetadata.id !== songId) {
-				throw new BadRequestException('Song metadata mismatch')
+				throw new BadRequestException('song-metadata-mismatch')
 			}
 
 			song = await this.prisma.song.create({
@@ -235,10 +235,7 @@ export class SongsService {
 			}
 		})
 
-		if (!isLiked)
-			throw new BadRequestException(
-				'This song is not liked, something went wrong'
-			)
+		if (!isLiked) throw new BadRequestException('song-not-liked')
 
 		await this.prisma.$transaction([
 			this.prisma.likedSong.delete({

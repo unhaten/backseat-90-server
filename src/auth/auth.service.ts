@@ -11,6 +11,7 @@ import { ConfigType } from '@nestjs/config'
 import refreshJwtConfig from './config/refresh-jwt.config'
 import { comparePasswords, hashPassword, validatePassword } from './auth.helper'
 import * as bcrypt from 'bcrypt'
+import { Response } from 'express'
 
 @Injectable()
 export class AuthService {
@@ -21,7 +22,7 @@ export class AuthService {
 		private readonly refreshTokenConfig: ConfigType<typeof refreshJwtConfig>
 	) {}
 
-	async login(email: string, response) {
+	async login(email: string, response: Response) {
 		const user = await this.prisma.user.findUnique({
 			where: { email },
 			select: { id: true, email: true, name: true }
@@ -57,7 +58,7 @@ export class AuthService {
 
 	async register(email: string, pwd: string, confirmPwd: string) {
 		if (pwd !== confirmPwd)
-			throw new BadRequestException('Passwords do not match')
+			throw new BadRequestException('passwords-do-not-match')
 
 		const isExists = await this.prisma.user.findUnique({
 			where: { email }
@@ -82,7 +83,7 @@ export class AuthService {
 		return {}
 	}
 
-	async refreshToken(userId: string, response) {
+	async refreshToken(userId: string, response: Response) {
 		const payload = { sub: userId }
 		const newToken = await this.jwtService.signAsync(payload)
 
@@ -99,7 +100,11 @@ export class AuthService {
 		// }
 	}
 
-	async changePassword(id, currentPassword, newPassword) {
+	async changePassword(
+		id: string,
+		currentPassword: string,
+		newPassword: string
+	) {
 		const user = await this.prisma.user.findUnique({
 			where: { id }
 		})
@@ -110,13 +115,11 @@ export class AuthService {
 			user.password
 		)
 		if (!isCorrectPassword)
-			throw new UnauthorizedException('Current password is incorrect')
+			throw new UnauthorizedException('current-password-incorrect')
 
 		// comparePasswords(currentPassword, newPassword)
 		if (currentPassword === newPassword) {
-			throw new BadRequestException(
-				'Your new password is the same as current one'
-			)
+			throw new BadRequestException('same-password')
 		}
 
 		// const newHashedPassword = await hashPassword(newPassword)
@@ -132,7 +135,7 @@ export class AuthService {
 		return {}
 	}
 
-	async logout(response) {
+	async logout(response: Response) {
 		response.cookie('access_token', '', { expires: new Date(Date.now()) })
 		response.cookie('refresh_token', '', { expires: new Date(Date.now()) })
 		return {}
