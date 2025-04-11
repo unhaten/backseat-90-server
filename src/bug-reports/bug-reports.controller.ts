@@ -1,4 +1,12 @@
-import { Body, Controller, Post, Request, UseGuards } from '@nestjs/common'
+import {
+	Body,
+	Controller,
+	Delete,
+	Get,
+	Post,
+	Request,
+	UseGuards
+} from '@nestjs/common'
 import { BugReportsService } from './bug-reports.service'
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard'
 import { CreateBugReportDto } from './dto/create-bug-report.dto'
@@ -13,5 +21,15 @@ export class BugReportsController {
 		return await this.bugReportsService.create(dto.message, req.user.sub)
 	}
 
-	// TODO: make feature for knowing how many bug reports left for the user
+	@UseGuards(JwtAuthGuard)
+	@Get()
+	async getBugReportsAmount(@Request() req) {
+		return await this.bugReportsService.getBugReportsAmount(req.user.sub)
+	}
+
+	@UseGuards(JwtAuthGuard)
+	@Delete()
+	async delete(id: string) {
+		return await this.bugReportsService.delete(id)
+	}
 }

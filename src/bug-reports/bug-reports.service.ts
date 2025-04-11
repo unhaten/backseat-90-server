@@ -6,11 +6,11 @@ export class BugReportsService {
 	constructor(private readonly prisma: PrismaService) {}
 
 	async create(message: string, userId: string) {
-		const bugReportAmount = await this.prisma.bugReport.count({
+		const bugReportsAmount = await this.prisma.bugReport.count({
 			where: { userId }
 		})
 
-		if (bugReportAmount >= 5)
+		if (bugReportsAmount >= 5)
 			throw new BadRequestException('bug-report-limit-reached')
 
 		return await this.prisma.bugReport.create({
@@ -21,5 +21,19 @@ export class BugReportsService {
 		})
 	}
 
-	async delete(id: string) {}
+	async getBugReportsAmount(userId: string) {
+		return await this.prisma.bugReport.count({
+			where: { userId }
+		})
+	}
+
+	async delete(id: string) {
+		return await this.prisma.bugReport.delete({
+			where: { id }
+		})
+	}
+
+	async getBugReportsList() {
+		return await this.prisma.bugReport.findMany()
+	}
 }
