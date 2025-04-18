@@ -22,9 +22,11 @@ export class BugReportsService {
 	}
 
 	async getBugReportsAmount(userId: string) {
-		return await this.prisma.bugReport.count({
+		const amount = await this.prisma.bugReport.count({
 			where: { userId }
 		})
+
+		return 5 - amount
 	}
 
 	async delete(id: string) {
