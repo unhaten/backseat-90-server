@@ -1,9 +1,15 @@
-import { Inject, Injectable, Request } from '@nestjs/common'
+import {
+	Inject,
+	Injectable,
+	Request,
+	UnauthorizedException
+} from '@nestjs/common'
 import { ConfigType } from '@nestjs/config'
 import { PassportStrategy } from '@nestjs/passport'
 import { ExtractJwt, Strategy } from 'passport-jwt'
 import { Request as RequestType } from 'express'
 import jwtConfig from '../config/jwt.config'
+import { PrismaService } from 'src/prisma/prisma.service'
 
 type JwtPayload = {
 	sub: string
@@ -12,7 +18,8 @@ type JwtPayload = {
 export class JwtStrategy extends PassportStrategy(Strategy) {
 	constructor(
 		@Inject(jwtConfig.KEY)
-		private readonly jwtConfiguration: ConfigType<typeof jwtConfig>
+		private readonly jwtConfiguration: ConfigType<typeof jwtConfig>,
+		private readonly prisma: PrismaService
 	) {
 		super({
 			jwtFromRequest: ExtractJwt.fromExtractors([
@@ -31,7 +38,15 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 	}
 
 	async validate(payload: JwtPayload) {
-		//* validate from strategy calls when we want to get data with access-token and returns payload (id only)
+		const user = await this.prisma.user.findUnique({
+			where: { id: payload.sub },
+			select: { id: true, email: true, name: true }
+		})
+
+		if (!user) {
+			throw new UnauthorizedException()
+		}
+
 		return payload
 	}
 }

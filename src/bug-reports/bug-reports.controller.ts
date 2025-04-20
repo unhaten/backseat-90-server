@@ -3,6 +3,8 @@ import {
 	Controller,
 	Delete,
 	Get,
+	HttpCode,
+	HttpStatus,
 	Post,
 	Request,
 	UseGuards
@@ -10,11 +12,15 @@ import {
 import { BugReportsService } from './bug-reports.service'
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard'
 import { CreateBugReportDto } from './dto/create-bug-report.dto'
+import { RolesGuard } from 'src/auth/guards/roles.guard'
+import { Role } from 'src/auth/enum/role.enum'
+import { Roles } from 'src/auth/decorators/roles.decorator'
 
 @Controller('bug-reports')
 export class BugReportsController {
 	constructor(private readonly bugReportsService: BugReportsService) {}
 
+	@HttpCode(HttpStatus.OK)
 	@UseGuards(JwtAuthGuard)
 	@Post()
 	async create(@Request() req, @Body() dto: CreateBugReportDto) {
@@ -27,7 +33,8 @@ export class BugReportsController {
 		return await this.bugReportsService.getBugReportsAmount(req.user.sub)
 	}
 
-	@UseGuards(JwtAuthGuard)
+	@UseGuards(JwtAuthGuard, RolesGuard)
+	@Roles(Role.Admin)
 	@Delete()
 	async delete(id: string) {
 		return await this.bugReportsService.delete(id)

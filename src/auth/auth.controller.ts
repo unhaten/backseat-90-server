@@ -16,6 +16,7 @@ import { RefreshJwtAuthGuard } from 'src/auth/guards/refresh-auth.guard'
 import { LocalAuthGuard } from 'src/auth/guards/local-auth.guard'
 import { JwtAuthGuard } from './guards/jwt-auth.guard'
 import { UpdatePasswordUserDto } from 'src/users/dto/update-password-user.dto'
+import { request } from 'http'
 @Controller('auth')
 export class AuthController {
 	constructor(private readonly authService: AuthService) {}
@@ -23,13 +24,12 @@ export class AuthController {
 	@HttpCode(HttpStatus.OK)
 	@UseGuards(LocalAuthGuard)
 	@Post('login')
-	async login(
-		@Body() dto: LoginUserDto,
-		@Res({ passthrough: true }) response
-	) {
-		return this.authService.login(dto.email, response)
+	async login(@Request() request, @Res({ passthrough: true }) response) {
+		console.log(request.user)
+		return this.authService.login(request.user, response)
 	}
 
+	@HttpCode(HttpStatus.OK)
 	@Post('register')
 	async register(@Body() dto: CreateUserDto) {
 		return this.authService.register(
@@ -39,12 +39,14 @@ export class AuthController {
 		)
 	}
 
+	@HttpCode(HttpStatus.OK)
 	@UseGuards(RefreshJwtAuthGuard)
 	@Post('refresh')
 	async refreshToken(@Request() req, @Res({ passthrough: true }) response) {
 		return this.authService.refreshToken(req.user.sub, response)
 	}
 
+	@HttpCode(HttpStatus.OK)
 	@UseGuards(JwtAuthGuard)
 	@Post('change-password')
 	async changePassword(

@@ -3,6 +3,8 @@ import {
 	Controller,
 	Delete,
 	Get,
+	HttpCode,
+	HttpStatus,
 	Post,
 	Request,
 	UseGuards
@@ -16,6 +18,7 @@ export class SongsController {
 	constructor(private readonly songsService: SongsService) {}
 
 	// @Throttle({ default: { limit: 1, ttl: 1 * 1 * 500 } })
+	@HttpCode(HttpStatus.OK)
 	@UseGuards(JwtAuthGuard)
 	@Post('bookmarks')
 	async toggleLike(@Request() req, @Body() dto) {
@@ -46,6 +49,7 @@ export class SongsController {
 		return this.songsService.getSongMetadata()
 	}
 
+	@HttpCode(HttpStatus.OK)
 	@UseGuards(JwtAuthGuard)
 	@Post('is-liked')
 	async isSongLiked(@Request() req, @Body() dto) {

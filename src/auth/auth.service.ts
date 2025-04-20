@@ -22,13 +22,10 @@ export class AuthService {
 		private readonly refreshTokenConfig: ConfigType<typeof refreshJwtConfig>
 	) {}
 
-	async login(email: string, response: Response) {
-		const user = await this.prisma.user.findUnique({
-			where: { email },
-			select: { id: true, email: true, name: true }
-		})
-
-		//! GOTO users.service for explanation
+	async login(
+		user: { id: string; name: string; email: string },
+		response: Response
+	) {
 		const payload = { sub: user.id }
 
 		const token = await this.jwtService.signAsync(payload)
@@ -77,10 +74,9 @@ export class AuthService {
 			}
 		})
 
-		const { password, ...result } = user
-		console.log('new user has been registered =>', user.email)
-		// FIXME: give a token
-		return {}
+		const { password: __, ...result } = user
+		// TODO: give a token
+		return result
 	}
 
 	async refreshToken(userId: string, response: Response) {
