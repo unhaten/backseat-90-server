@@ -29,8 +29,17 @@ export class BugReportsController {
 
 	@UseGuards(JwtAuthGuard)
 	@Get()
-	async getBugReportsAmount(@Request() req) {
-		return await this.bugReportsService.getBugReportsAmount(req.user.sub)
+	async getBugReportsAmountLeft(@Request() req) {
+		return await this.bugReportsService.getBugReportsAmountLeft(
+			req.user.sub
+		)
+	}
+
+	@UseGuards(JwtAuthGuard, RolesGuard)
+	@Roles(Role.Admin)
+	@Get()
+	async getBugReportsList() {
+		return await this.bugReportsService.getBugReportsList()
 	}
 
 	@UseGuards(JwtAuthGuard, RolesGuard)

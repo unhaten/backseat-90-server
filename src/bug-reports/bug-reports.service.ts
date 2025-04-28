@@ -21,7 +21,7 @@ export class BugReportsService {
 		})
 	}
 
-	async getBugReportsAmount(userId: string) {
+	async getBugReportsAmountLeft(userId: string) {
 		const amount = await this.prisma.bugReport.count({
 			where: { userId }
 		})
